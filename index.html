@@ -115,6 +115,17 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--quantum-crimson);
         }
+
+        /* Custom Audio Player Styling */
+        .audio-player {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            gap: 12px;
+        }
     </style>
 </head>
 <body class="hero-pattern">
@@ -146,8 +157,26 @@
                 <div class="flex items-center">
                     <span class="text-2xl font-black tracking-widest text-white">Q<span class="text-red-600">AL</span></span>
                 </div>
+                
+                <!-- Audio Player Container -->
+                <div class="hidden lg:flex items-center ml-auto mr-8">
+                    <div class="audio-player">
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-gray-500">Listen</span>
+                        <button id="audio-toggle" onclick="toggleAudio()" class="text-red-500 hover:text-white transition-colors">
+                            <i id="play-icon" class="fas fa-play"></i>
+                        </button>
+                        <audio id="bg-audio" loop>
+                            <source src="YOUR_AUDIO_FILE.mp3" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <div class="w-24 h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div id="audio-progress" class="h-full bg-red-600 w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-10">
+                    <div class="flex items-baseline space-x-10">
                         <a href="#how-it-works" class="nav-link text-sm font-bold uppercase tracking-widest">Principles</a>
                         <a href="#applications" class="nav-link text-sm font-bold uppercase tracking-widest">Applications</a>
                         <a href="#alabama" class="nav-link text-sm font-bold uppercase tracking-widest">Local Impact</a>
@@ -342,6 +371,28 @@
     </footer>
 
     <script>
+        // --- AUDIO PLAYER LOGIC ---
+        const audio = document.getElementById('bg-audio');
+        const playIcon = document.getElementById('play-icon');
+        const progressBar = document.getElementById('audio-progress');
+
+        function toggleAudio() {
+            if (audio.paused) {
+                audio.play();
+                playIcon.classList.remove('fa-play');
+                playIcon.classList.add('fa-pause');
+            } else {
+                audio.pause();
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+            }
+        }
+
+        audio.ontimeupdate = () => {
+            const percentage = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = percentage + '%';
+        };
+
         // --- TONED DOWN MOUSE TRAIL LOGIC ---
         const canvas = document.getElementById('trail-canvas');
         const ctx = canvas.getContext('2d');
@@ -358,17 +409,15 @@
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                // Smaller size for subtlety
                 this.size = Math.random() * 2 + 0.5; 
                 this.speedX = (Math.random() - 0.5) * 1.2;
                 this.speedY = (Math.random() - 0.5) * 1.2;
-                this.alpha = 0.8; // Start slightly more transparent
+                this.alpha = 0.8;
                 this.color = Math.random() > 0.5 ? '#ed1c24' : '#ffffff';
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                // Faster fade for a shorter trail
                 this.alpha -= 0.015; 
             }
             draw() {
@@ -382,9 +431,8 @@
             }
         }
 
-        // Generate fewer particles on move
         window.addEventListener('mousemove', (e) => {
-            if (particles.length < 100) { // Limit total particles for performance
+            if (particles.length < 100) {
                 particles.push(new Particle(e.clientX, e.clientY));
             }
         });
@@ -409,49 +457,43 @@
                 title: "Quantum Information Theory",
                 icon: "fa-atom",
                 content: `
-                    <p class='mb-4'>In classical computing, a bit is a transistor that is either <strong>high voltage (1)</strong> or <strong>low voltage (0)</strong>. It is rigid and limited.</p>
-                    <p class='mb-4'>A <strong>Qubit</strong> uses the actual physical properties of atoms. We can use the 'spin' of an electron or the 'polarization' of a photon. Because these particles are tiny, they obey <em>Quantum Mechanics</em>.</p>
-                    <p class='text-red-500 font-bold border-l-4 border-red-600 pl-4 py-2 bg-red-600/5'>Scientific Fact: While 100 bits can represent 100 pieces of info, 100 qubits can represent 2^100 states simultaneously—more than the number of atoms in the visible universe.</p>
+                    <p class='mb-4'>In classical computing, a bit is a transistor that is either 1 or 0. A <strong>Qubit</strong> uses the properties of atoms, allowing for vastly more representation.</p>
+                    <p class='text-red-500 font-bold border-l-4 border-red-600 pl-4 py-2 bg-red-600/5'>Scientific Fact: 100 qubits can represent 2^100 states—more than the atoms in the universe.</p>
                 `
             },
             parallelism: {
                 title: "Superposition Dynamics",
                 icon: "fa-infinity",
                 content: `
-                    <p class='mb-4'>Superposition is the ability of a quantum system to be in multiple states at the same time until it is measured. It's not that it's 0 or 1, it's that it is a <strong>mathematical wave of probability</strong> of being both.</p>
-                    <p class='mb-4'>This allows a computer to run a million simulations at the exact same moment. Instead of checking every key for a lock one by one, the quantum computer 'tries' every key at once and only the 'winning' state becomes reality when the answer is observed.</p>
+                    <p class='mb-4'>Superposition means a quantum system is in multiple states at once until measured. This allows computers to try all possible solutions to a problem simultaneously.</p>
                 `
             },
             entanglement: {
                 title: "Quantum Correlation",
                 icon: "fa-link",
                 content: `
-                    <p class='mb-4'>Entanglement is a physical phenomenon where pairs or groups of particles are generated such that the state of each particle cannot be described independently of the others.</p>
-                    <p class='mb-4'>When two qubits are entangled, their fates are tied. Changing one instantly forces the other to change, even if they were light-years apart. This allows for <strong>Quantum Teleportation</strong> of information and ultra-coordinated parallel processing.</p>
+                    <p class='mb-4'>Entanglement ties qubits together instantly across distances. Changing one affects the other, enabling high-speed data coordination.</p>
                 `
             },
             medicine: {
                 title: "Precision Medicine",
                 icon: "fa-briefcase-medical",
                 content: `
-                    <p class='mb-4'>Most biology is actually chemistry, and chemistry is physics. Normal computers struggle to simulate how a new drug will react with an atom in your body because there are too many variables.</p>
-                    <p class='mb-4'>Quantum computers use the same 'physics language' as your cells. We can simulate the folding of a protein or the reaction of a vaccine at a subatomic level, allowing for 100% personalized medicine with zero trial and error.</p>
+                    <p class='mb-4'>Quantum simulation lets scientists map drug reactions at an atomic level, aiming to create personalized medicine without guesswork.</p>
                 `
             },
             encryption: {
                 title: "The Security Revolution",
                 icon: "fa-user-shield",
                 content: `
-                    <p class='mb-4'>Current passwords rely on factoring large numbers—something normal computers are bad at. A quantum computer could crack these in seconds.</p>
-                    <p class='mb-4'>However, we use <strong>Quantum Key Distribution (QKD)</strong> to fight back. In QKD, the data is sent using qubits. If a hacker tries to copy the data, the 'Observation Rule' in physics causes the qubit to change state, destroying the data and alerting the sender immediately. It is security protected by the laws of the universe.</p>
+                    <p class='mb-4'>Quantum security uses physics to protect data. If someone tries to spy on a 'quantum key,' the physical state changes, alerting the owner.</p>
                 `
             },
             climate: {
                 title: "Engineering the Future",
                 icon: "fa-leaf",
                 content: `
-                    <p class='mb-4'>To fix climate change, we need better batteries and better ways to capture carbon. Currently, we use 'brute force' science to find new materials, which takes decades.</p>
-                    <p class='mb-4'>Quantum simulation allows us to design new molecules from scratch in a virtual lab. We can create a catalyst that pulls nitrogen from the air more efficiently, reducing global energy usage by up to 5% instantly.</p>
+                    <p class='mb-4'>Simulating new molecules can help create efficient carbon capture or better batteries to protect our environment.</p>
                 `
             }
         };
